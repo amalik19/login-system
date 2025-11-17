@@ -8,20 +8,22 @@ from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 
+# seperate below configuration in json file and load here from that json file
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thisisasecretkey'
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
+# seperate each class into its own file
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(20),unique = True, nullable = False)
     password = db.Column(db.String(50), nullable = False)
 
 class RegisterForm(FlaskForm):
-    username = StringField(validators={InputRequired(), Length(min=4, max=20),}, render_kw={"placeholder": "Username"})
-    password = PasswordField(validators={InputRequired(), Length(min=4, max=20),}, render_kw={"placeholder": "Password"})
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("Register")
 
     def validate_username(self, username):
@@ -30,8 +32,8 @@ class RegisterForm(FlaskForm):
             raise ValidationError("That username already exists. Please choose a different one.")
         
 class LoginForm(FlaskForm):
-    username = StringField(validators={InputRequired(), Length(min=4, max=20),}, render_kw={"placeholder": "Username"})
-    password = PasswordField(validators={InputRequired(), Length(min=4, max=20),}, render_kw={"placeholder": "Password"})
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
 
@@ -49,10 +51,11 @@ def register():
     form = RegisterForm()
     
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         new_user = User(username=form.username.data, password = hashed_password)
         db.session.add(new_user)
         db.session.commit()
+        print("User saved!")
         return redirect(url_for('login'))
     
     return render_template('register.html', form=form)
@@ -60,4 +63,5 @@ def register():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        print("DATABASE LOCATIONS: ", db.engine.url)
     app.run(debug=True)
