@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Flask App{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body bgcolor=#cfe3f1>
+
+    <header class="site_header">
+        <h1>Film Finder</h1>
+    </header>
+    <ul class = "nav_bar">
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+    </ul>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p></p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

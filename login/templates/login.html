@@ -1,19 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
-    <h1>Login Page</h1>
+{% extends "base.html" %}
 
-    <form method = "POST" action = "">
-        {{ form.hidden_tag() }}
-        {{ form.username }}
-        {{ form.password }}
-        {{ form.submit }}
-    </form>
-    <a href="{{url_for('register')}}">Don't have an account? Sign Up</a>
-</body>
-</html>
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+    {{ form.username }}<br>
+    {{ form.password }}<br>
+    {{ form.submit }}
+</form>
+<p>Don't have an account yet? <a href="{{ url_for('register') }}">Click here to register</a>.</p>
+
+{% endblock %}
