@@ -45,3 +45,25 @@ body {
 .nav_bar li a:hover {
     background-color: #b7d7ee;
 }
+
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 15px;
+}
+
+.movie-card {
+  min-width: 180px;
+  text-align: center;
+}
+
+.movie-card img {
+  width: 100%;
+  border-radius: 10px;
+  transition: transform 0.3s;
+}
+
+.movie-card img:hover {
+  transform: scale(1.05);
+}

@@ -62,6 +62,11 @@ def login():
 @login_required
 def dashboard():
     movies = get_popular_movies()
+    for movie in movies:
+        if movie.get("poster_path"):
+            movie["poster_path"] = f"https://image.tmdb.org/t/p/w500{movie['poster_path']}"
+        else:
+            movie["poster_path"] = "/static/no_image_available.png"
     return render_template('dashboard.html', movies=movies)
 
 @app.route('/logout', methods = ["GET", "POST"])

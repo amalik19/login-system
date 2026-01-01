@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
@@ -9,14 +10,19 @@
     <h1>Welcome, {{ current_user.username }}.</h1>
     <a href="{{url_for('logout')}}">Click here to logout.</a><br>
 
-    <h2>Popular Movies</h2>
-    <ul>
-        {% for movie in movies %}
-            <li><strong>{{ movie.title }}</strong> ({{ movie.release_year }})<br>
-            Rating: {{ movie.vote_average }}<br>
-            <p>{{ movie.overview }}</p>
-        </li>
-        {% endfor %}
-    </ul>        
+    <h2>Trending right now</h2>
+
+   <div class="carousel">
+    {% for movie in movies %}
+        <div class="movie-card">
+            <img 
+              src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
+              alt="{{ movie.title }}"
+            >
+            <h3>{{ movie.title }}</h3>
+            <p>⭐ {{ movie.vote_average }}</p>
+        </div>
+    {% endfor %}
+    </div>        
 </body>
 </html>
