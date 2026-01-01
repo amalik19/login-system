@@ -5,6 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
+from api import get_popular_movies
 
 app = Flask(__name__)
 
@@ -60,7 +61,8 @@ def login():
 @app.route('/dashboard', methods = ["GET", "POST"])
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    movies = get_popular_movies()
+    return render_template('dashboard.html', movies=movies)
 
 @app.route('/logout', methods = ["GET", "POST"])
 @login_required
