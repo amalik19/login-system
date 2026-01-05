@@ -9,7 +9,17 @@ def get_popular_movies():
     url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return response.json()["results"]  # returns a list of movie dicts
+        return response.json()["results"]
     else:
         print("TMDb API Error:", response.status_code)
+        return []
+
+
+def search_movies():    
+    url = "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
+    respone = requests.get(url, headers=headers)
+    if respone.status_code == 200:
+        return respone.json()["results"]
+    else:
+        print("TMDb API Error:", respone.status_code)
         return []

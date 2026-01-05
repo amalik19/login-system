@@ -3,9 +3,9 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<h2>Register</h2>
+<h2>Create your account</h2>
 
-<form method="POST">
+<form method="POST" class="register_form">
     {{ form.hidden_tag() }}
     {{ form.username }}<br>
     {{ form.password }}<br>
