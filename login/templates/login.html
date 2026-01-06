@@ -3,12 +3,12 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
+<br><br><br>
 <h2>Login</h2>
-
 <form method="POST" class="login_form">
     {{ form.hidden_tag() }}
-    {{ form.username }}<br>
-    {{ form.password }}<br>
+    {{ form.username (style="width:40%; height:40px; font-size:20px;")}}<br> <br><br>
+    {{ form.password (style="width:40%; height:40px; font-size:20px;")}}<br>
     {{ form.submit }}
 </form>
 <p>Don't have an account yet? <a href="{{ url_for('register') }}">Click here to register</a>.</p>
