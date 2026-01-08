@@ -1,0 +1,83 @@
+body {
+    text-align:center;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #99b0c9
+}
+
+.site_header {
+    background-color: #99b0c9;
+    padding: 20px 0 10px 0;
+    text-align: center;
+    border: double 10px white;
+}
+
+.site_header h1 {
+    margin: 0 0 15px 0;
+    font-size: 3rem;
+    color: #1f6fa3;
+}
+
+.nav_bar {
+    list-style: none;
+    margin: 0;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-evenly; 
+    background-color: #2a7db3;
+    border: double 10px white;
+}
+
+.nav_bar li {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.nav_bar li a {
+    background-color: #eaf4fb;
+    border: 2px solid #2a7db3;
+    padding: 7px 180px;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.nav_bar li a:hover {
+    background-color: #a5b2c2
+}
+
+.register_form, .login_form{
+    border: 5px solid white;
+    border-radius: 25px;
+    box-sizing: border-box;
+    width: 800px;
+    height: 250px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #99b0c9
+
+}
+
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 15px;
+}
+
+.movie-card {
+  min-width: 180px;
+  text-align: center;
+}
+
+.movie-card img {
+  width: 100%;
+  border-radius: 10px;
+  transition: transform 0.3s;
+}
+
+.movie-card img:hover {
+  transform: scale(1.05);
+}
