@@ -13,16 +13,35 @@
     <h2>Trending right now</h2>
 
    <div class="carousel">
-    {% for movie in movies %}
+    {% for movie in trending_movies %}
         <div class="movie-card">
-            <img 
-              src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
-              alt="{{ movie.title }}"
-            >
+            <a href = "{{ url_for('movie_details', movie_id = movie.id)}}">
+                <img 
+                src="{{ movie.poster_path }}"
+                alt="{{ movie.title }}"
+                >
+            </a>
             <h3>{{ movie.title }}</h3>
             <p>⭐ {{ movie.vote_average }}</p>
         </div>
     {% endfor %}
     </div>        
+
+    <h2>Recommended for you</h2>
+    <div class="carousel">
+        {% for movie in recommended_movies %}
+            <div class="movie-card">
+                <a href = "{{ url_for('movie_details', movie_id = movie.id)}}">
+                    <img 
+                    src="{{ movie.poster_path }}"
+                    alt="{{ movie.title }}"
+                    >
+                </a>
+                <h3>{{ movie.title }}</h3>
+                <p>⭐ {{ movie.vote_average }}</p>
+                <p>Similarity: {{movie.similarity | round(2) }}</p>
+        </div>
+    {% endfor %}
+
 </body>
 </html>

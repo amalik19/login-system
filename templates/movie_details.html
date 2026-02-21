@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ movie.title }}</title>
+</head>
+<body>
+
+    <h1>{{ movie.title }}</h1>
+
+    <img src="{{ movie.poster_path }}" width="300">
+
+    <p><strong>Release Date:</strong> {{ movie.release_date }}</p>
+    <p><strong>Rating:</strong> {{ movie.vote_average }}</p>
+
+    <h3>Overview</h3>
+    <p>{{ movie.overview }}</p>
+
+    <hr>
+
+    <h3>Rate this movie (1–5)</h3>
+
+    <form method="POST">
+        <input type="number" name="rating" min="1" max="5" required>
+        <button type="submit">Submit Rating</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+
+</body>
+</html>

@@ -13,3 +13,12 @@ def get_popular_movies():
     else:
         print("TMDb API Error:", response.status_code)
         return []
+    
+def get_movie_details(movie_id):
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}"
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {}

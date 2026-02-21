@@ -4,9 +4,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, RadioField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
-from tables import db, User, User_Preference
-from api import get_popular_movies
-from similarity import genre_map, genre_names, vectorise_movie, vectorise_user
+from tables import db, User, User_Preference, Rating
+from api import get_popular_movies, get_movie_details
+from similarity import genre_map, genre_names, vectorise_movie, vectorise_user, cosine_similarity
 import os
 
 app = Flask(__name__, instance_relative_config=True)
@@ -56,18 +56,67 @@ def login():
                 return redirect(url_for('dashboard'))
     return render_template('login.html', form=form)
 
-@app.route('/dashboard', methods = ["GET", "POST"])
+@app.route('/dashboard', methods=["GET", "POST"])
 @login_required
 def dashboard():
     if current_user.quiz_completed == False:
         return redirect(url_for('quiz'))
-    movies = get_popular_movies()
-    for movie in movies:
+    trending_movies = get_popular_movies()
+    for movie in trending_movies:
         if movie.get("poster_path"):
-            movie["poster_path"] = f"https://image.tmdb.org/t/p/w500{movie['poster_path']}"
+            movie["poster_path"] = "https://image.tmdb.org/t/p/w500" + movie["poster_path"]
         else:
             movie["poster_path"] = "/static/no_image_available.png"
-    return render_template('dashboard.html', movies=movies)
+    recommended_movies = get_popular_movies()
+    user_vector = vectorise_user(current_user)
+
+    for movie in recommended_movies:
+        movie_vector = vectorise_movie(movie)
+        similarity = cosine_similarity(movie_vector, user_vector)
+        movie["similarity"] = similarity
+        print(movie["title"], similarity)
+
+        if movie.get("poster_path"):
+            movie["poster_path"] = "https://image.tmdb.org/t/p/w500" + movie["poster_path"]
+        else:
+            movie["poster_path"] = "/static/no_image_available.png"
+
+    recommended_movies = sorted(recommended_movies, key=lambda x: x["similarity"], reverse=True)
+
+    return render_template('dashboard.html',trending_movies=trending_movies,recommended_movies=recommended_movies)
+
+@app.route('/movie/<int:movie_id>', methods=["GET", "POST"])
+@login_required
+def movie_details(movie_id):
+
+    if request.method == "POST":
+        rating_value = int(request.form.get("rating"))
+
+        existing = Rating.query.filter_by(
+            user_id=current_user.id,
+            movie_id=movie_id
+        ).first()
+
+        if existing:
+            existing.rating = rating_value
+        else:
+            new_rating = Rating(
+                user_id=current_user.id,
+                movie_id=movie_id,
+                rating=rating_value
+            )
+            db.session.add(new_rating)
+
+        db.session.commit()
+
+    movie = get_movie_details(movie_id)
+
+    if movie.get("poster_path"):
+        movie["poster_path"] = "https://image.tmdb.org/t/p/w500" + movie["poster_path"]
+    else:
+        movie["poster_path"] = "/static/no_image_available.png"
+
+    return render_template("movie_details.html", movie=movie)
 
 @app.route('/logout', methods = ["GET", "POST"])
 @login_required

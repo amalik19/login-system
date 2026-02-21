@@ -27,3 +27,20 @@ def vectorise_user(user):
         score = preference.score
         user_vector.append(score)
     return user_vector
+
+def dot_product(movie_vector, user_vector):
+    total = 0
+    for i in range(0, len(movie_vector)):
+        total = total + (movie_vector[i] * user_vector[i])
+    return total
+        
+def magnitude(movie_vector):
+    total = 0
+    for i in range(0, len(movie_vector)):
+        total = total + (movie_vector[i] ** 2)
+    total = total ** 0.5
+    return total
+    
+def cosine_similarity(movie_vector, user_vector):
+    similarity = dot_product(movie_vector, user_vector) / (magnitude(movie_vector) * magnitude(user_vector))
+    return similarity
