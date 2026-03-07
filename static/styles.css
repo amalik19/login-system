@@ -53,9 +53,12 @@ body {
     height: 250px;
     margin: 0 auto;
     padding: 30px;
-
 }
 
+.quiz-container {
+    column-count:3;
+
+}
 .carousel {
   display: flex;
   overflow-x: auto;
@@ -76,4 +79,22 @@ body {
 
 .movie-card img:hover {
   transform: scale(1.05);
+}
+
+.refinement-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: 50px;
+}
+
+.refinement-poster {
+    width: 300px;
+    border-radius: 15px;
+}
+
+.like-btn, .dislike-btn {
+    font-size: 50px;
+    text-decoration: none;
 }

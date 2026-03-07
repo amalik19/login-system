@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Refine Recommendations</title>
+</head>
+<body>
+    <h1>Refining your preferences</h1>
+
+    <div class="refinement-grid">
+        {% for movie in movies %}
+        <div class="refinement-card">
+            <img src="{{ movie.poster_path }}" width="200">
+            <h3>{{ movie.title }}</h3>
+            <a href="{{ url_for('refinement_feedback', movie_id=movie.id, action='like') }}">👍</a>
+            <a href="{{ url_for('refinement_feedback', movie_id=movie.id, action='dislike') }}">👎</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <a href="{{ url_for('dashboard') }}">Skip to dashboard</a>
+</body>
+</html><h1>Refine Recommendations</h1>
+
+<div class="refinement-container">
+    <img src="{{ movie.poster_path }}" width="200">
+    <h3>{{ movie.title }}</h3>
+
+    <a href="{{ url_for('refinement_feedback', movie_id=movie.id, action='like') }}">👍</a>
+    <a href="{{ url_for('refinement_feedback', movie_id=movie.id, action='dislike') }}">👎</a>
+</div>

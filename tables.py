@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
+    username = db.Column(db.String(30), unique=True, nullable=False)
     password = db.Column(db.String(50), nullable=False)
     quiz_completed = db.Column(db.Boolean, default=False)
     preferences = db.relationship("User_Preference", backref="user", lazy=True)

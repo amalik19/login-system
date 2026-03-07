@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, render_template, url_for, redirect, request, session
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, RadioField
@@ -6,7 +6,7 @@ from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
 from tables import db, User, User_Preference, Rating
 from api import get_popular_movies, get_movie_details
-from similarity import genre_map, genre_names, vectorise_movie, vectorise_user, cosine_similarity
+from similarity import genre_map, genre_names, magnitude, vectorise_movie, vectorise_user, cosine_similarity
 import os
 
 app = Flask(__name__, instance_relative_config=True)
@@ -27,8 +27,8 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 class RegisterForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
+    username = StringField(validators=[InputRequired(), Length(min=6, max=30)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("Register")
 
     def validate_username(self, username):
@@ -37,13 +37,34 @@ class RegisterForm(FlaskForm):
             raise ValidationError("That username already exists. Please choose a different one.")
                                                                     
 class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
+    username = StringField(validators=[InputRequired(), Length(min=4, max=30)], render_kw={"placeholder": "Username"})
+    password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
 @app.route('/')
 def home():
     return render_template('home.html')
+
+@app.route('/register', methods = ["GET", "POST"])
+def register():
+    form = RegisterForm()
+    print("Form validation result:", form.validate_on_submit())         
+    if form.validate_on_submit():
+        print("FORM VALIDATED")
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        new_user = User(username=form.username.data, password = hashed_password)
+        print("User object created:", new_user.username)
+        db.session.add(new_user)
+        print("User added to session")                                                                                                                                                                                                                                                          
+        try:
+            db.session.commit()
+            print("COMMIT SUCCESS")
+        except Exception as e:
+            db.session.rollback()
+            print("COMMIT FAILED:", e)                                                                                                                                                                                                                                                                                                                                   
+        print("User saved!")
+        return redirect(url_for('login'))                                                                                                                                                                                                                                                                                                                                        
+    return render_template('register.html', form=form)
 
 @app.route('/login', methods = ["GET", "POST"])
 def login():
@@ -54,7 +75,22 @@ def login():
             if bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user)
                 return redirect(url_for('dashboard'))
+            else:
+                form.password.errors.append("Invalid username or password.")
     return render_template('login.html', form=form)
+
+@app.route('/quiz', methods = ["GET", "POST"])     
+@login_required
+def quiz():
+    if request.method == "POST":
+        for i in genre_names:
+            score = int(request.form[i])
+            preference = User_Preference(user_id=current_user.id, genre=i, score=score)
+            db.session.add(preference)
+        current_user.quiz_completed = True
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+    return render_template('quiz.html', genres=genre_names)
 
 @app.route('/dashboard', methods=["GET", "POST"])
 @login_required
@@ -69,34 +105,30 @@ def dashboard():
             movie["poster_path"] = "/static/no_image_available.png"
     recommended_movies = get_popular_movies()
     user_vector = vectorise_user(current_user)
-
+    print("User vector:", user_vector)
+    print("User magnitude:", magnitude(user_vector)) 
     for movie in recommended_movies:
         movie_vector = vectorise_movie(movie)
+        print(movie["title"], movie_vector, magnitude(movie_vector))
         similarity = cosine_similarity(movie_vector, user_vector)
         movie["similarity"] = similarity
         print(movie["title"], similarity)
-
         if movie.get("poster_path"):
             movie["poster_path"] = "https://image.tmdb.org/t/p/w500" + movie["poster_path"]
         else:
             movie["poster_path"] = "/static/no_image_available.png"
-
     recommended_movies = sorted(recommended_movies, key=lambda x: x["similarity"], reverse=True)
-
     return render_template('dashboard.html',trending_movies=trending_movies,recommended_movies=recommended_movies)
 
 @app.route('/movie/<int:movie_id>', methods=["GET", "POST"])
 @login_required
 def movie_details(movie_id):
-
     if request.method == "POST":
         rating_value = int(request.form.get("rating"))
-
         existing = Rating.query.filter_by(
             user_id=current_user.id,
             movie_id=movie_id
         ).first()
-
         if existing:
             existing.rating = rating_value
         else:
@@ -106,16 +138,12 @@ def movie_details(movie_id):
                 rating=rating_value
             )
             db.session.add(new_rating)
-
         db.session.commit()
-
     movie = get_movie_details(movie_id)
-
     if movie.get("poster_path"):
         movie["poster_path"] = "https://image.tmdb.org/t/p/w500" + movie["poster_path"]
     else:
         movie["poster_path"] = "/static/no_image_available.png"
-
     return render_template("movie_details.html", movie=movie)
 
 @app.route('/logout', methods = ["GET", "POST"])
@@ -123,44 +151,6 @@ def movie_details(movie_id):
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-@app.route('/register', methods = ["GET", "POST"])
-def register():
-    form = RegisterForm()
-    print("Form validation result:", form.validate_on_submit())                                                                                                                                                                                                                        
-
-    if form.validate_on_submit():
-        print("FORM VALIDATED")
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_user = User(username=form.username.data, password = hashed_password)
-        print("User object created:", new_user.username)
-        db.session.add(new_user)
-        print("User added to session")
-                                                                                                                                                                                                                                                                                                
-        try:
-            db.session.commit()
-            print("COMMIT SUCCESS")
-        except Exception as e:
-            db.session.rollback()
-            print("COMMIT FAILED:", e)
-                                                                                                                                                                                                                                                                                                                                                                            
-        print("User saved!")
-        return redirect(url_for('login'))
-                                                                                                                                                                                                                                                                                                                                                                                      
-    return render_template('register.html', form=form)
-
-@app.route('/quiz', methods = ["GET", "POST"])     
-@login_required
-def quiz():
-    if request.method == "POST":
-        for i in genre_names:
-            score = int(request.form[i])
-            preference = User_Preference(user_id=current_user.id, genre=i, score=score)
-            db.session.add(preference)
-        current_user.quiz_completed = True
-        db.session.commit()
-        return redirect(url_for('dashboard'))
-    return render_template('quiz.html', genres=genre_names)
 
 if __name__ == '__main__':
     with app.app_context():

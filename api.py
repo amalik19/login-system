@@ -6,12 +6,12 @@ headers = {
     }
 
 def get_popular_movies():
-    url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
+    url = f"https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json()["results"]
     else:
-        print("TMDb API Error:", response.status_code)
+        print("TMDB API Error:", response.status_code)
         return []
     
 def get_movie_details(movie_id):
